@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(222.2 84% 4.9%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(222.2 84% 4.9%);
+  --color-primary: hsl(262.1 83.3% 57.8%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(270 40% 96.1%);
+  --color-secondary-foreground: hsl(262.1 47.4% 11.2%);
+  --color-muted: hsl(270 20% 96.1%);
+  --color-muted-foreground: hsl(260 16.3% 46.9%);
+  --color-accent: hsl(270 40% 96.1%);
+  --color-accent-foreground: hsl(262.1 47.4% 11.2%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(260 20% 92%);
+  --color-input: hsl(260 20% 92%);
+  --color-ring: hsl(262.1 83.3% 57.8%);
+  --radius: 0.75rem;
+}
+
+body {
+  background-color: #F8F7FC;
+  color: var(--color-foreground);
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-handwriting {
+  font-family: 'Caveat', cursive, sans-serif;
+}
+
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}

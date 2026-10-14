@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="menteeBg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9333EA" />
+      <stop offset="0.5" stop-color="#7C3AED" />
+      <stop offset="1" stop-color="#3B82F6" />
+    </linearGradient>
+    <filter id="mShadow" x="0" y="4" width="64" height="60" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#581C87" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <!-- Rounded Squircle Badge -->
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#menteeBg)" />
+  <rect x="4.5" y="4.5" width="55" height="55" rx="15.5" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="1" />
+  <!-- Daily Status / Mentee Progress Icon -->
+  <g filter="url(#mShadow)">
+    <!-- Clipboard/Report Pad -->
+    <rect x="20" y="18" width="24" height="30" rx="4" fill="white" />
+    <!-- Clip Top -->
+    <rect x="26" y="15" width="12" height="6" rx="2" fill="#E9D4FF" stroke="#7C3AED" stroke-width="1.5" />
+    <!-- Checklist items inside -->
+    <path d="M25 26L28 29L33 24" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <line x1="36" y1="27" x2="40" y2="27" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" />
+    <line x1="25" y1="34" x2="39" y2="34" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" />
+    <line x1="25" y1="40" x2="35" y2="40" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" />
+  </g>
+</svg>
