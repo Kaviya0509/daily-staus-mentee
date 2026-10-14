@@ -8,7 +8,6 @@ import {
   Calendar,
   CheckCircle2,
   AlertTriangle,
-  Sparkles,
   Check,
   PlayCircle,
   RotateCcw,
@@ -558,14 +557,6 @@ export default function DailyStatusFormPage() {
             </Button>
           </div>
         </form>
-
-        {/* Footer tip */}
-        <div className="pb-8 flex justify-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F3E8FF] border border-[#E9D4FF] text-[#7C3AED] text-xs font-semibold">
-            <Sparkles className="h-3.5 w-3.5" />
-            Daily updates help your mentors track your growth
-          </div>
-        </div>
       </main>
     </div>
   );
