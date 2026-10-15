@@ -308,7 +308,7 @@ export default function DailyStatusFormPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="currentTask" className="text-xs font-semibold text-slate-700">
-                    Current Task / Ticket Title <span className="text-rose-500">*</span>
+                    Current Task<span className="text-rose-500">*</span>
                   </Label>
                   <span className="text-[10px] text-slate-400">
                     {currentTaskVal?.length || 0}/200
