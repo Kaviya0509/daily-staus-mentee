@@ -2,6 +2,9 @@ import {
   doc,
   setDoc,
   collection,
+  query,
+  where,
+  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 import { format } from "date-fns";
@@ -9,6 +12,21 @@ import { db } from "./firebase";
 import type { ReportFormData } from "../schemas/reportSchema";
 
 const COLLECTION = "menteeReports";
+
+export const checkExistingReport = async (
+  menteeName: string,
+  reportDate: string
+): Promise<boolean> => {
+  const sanitized = (menteeName || "mentee").trim().toLowerCase().replace(/[^a-zA-Z0-9@._-]/g, "");
+  const col = collection(db, COLLECTION);
+  const q = query(
+    col,
+    where("menteeUid", "==", sanitized.replace(/[^a-zA-Z0-9]/g, "")),
+    where("reportDate", "==", reportDate)
+  );
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
+};
 
 export const createReport = async (
   data: ReportFormData

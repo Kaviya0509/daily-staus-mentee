@@ -17,7 +17,7 @@ import {
   User,
 } from "lucide-react";
 
-import { createReport } from "../services/reportService";
+import { createReport, checkExistingReport } from "../services/reportService";
 import { reportSchema, type ReportFormData } from "../schemas/reportSchema";
 import type { ReportStatus } from "../types";
 
@@ -27,6 +27,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DateInput } from "@/components/ui/date-input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const STATUS_OPTIONS: {
   value: ReportStatus;
@@ -87,6 +95,7 @@ const STATUS_OPTIONS: {
 export default function DailyStatusFormPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
 
   const {
     register,
@@ -119,9 +128,17 @@ export default function DailyStatusFormPage() {
   const onSubmit = async (data: ReportFormData) => {
     setSubmitting(true);
     try {
+      const reportDate = data.reportDate || format(new Date(), "yyyy-MM-dd");
+      const alreadySubmitted = await checkExistingReport(data.menteeName, reportDate);
+      if (alreadySubmitted) {
+        setShowDuplicateDialog(true);
+        setSubmitting(false);
+        return;
+      }
+
       const payload: ReportFormData = {
         ...data,
-        reportDate: data.reportDate || format(new Date(), "yyyy-MM-dd"),
+        reportDate,
         menteeEmail: data.menteeEmail || "",
         managerLead: data.managerLead || "",
       };
@@ -514,6 +531,31 @@ export default function DailyStatusFormPage() {
           </div>
         </form>
       </main>
+
+      {/* Duplicate Submission Dialog */}
+      <Dialog open={showDuplicateDialog} onOpenChange={setShowDuplicateDialog}>
+        <DialogContent className="max-w-sm rounded-2xl border border-slate-200 bg-white shadow-xl">
+          <DialogHeader className="text-center sm:text-center">
+            <div className="h-14 w-14 rounded-full bg-amber-100 text-amber-600 mx-auto flex items-center justify-center mb-2">
+              <AlertTriangle className="h-7 w-7" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-slate-900">
+              Already Submitted
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-500 leading-relaxed">
+              You have already submitted your daily report for today. Only one submission per day is allowed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center pt-2">
+            <Button
+              onClick={() => setShowDuplicateDialog(false)}
+              className="bg-gradient-to-r from-[#7C3AED] to-[#9333EA] hover:from-[#6D28D9] hover:to-[#7C3AED] text-white font-bold rounded-xl text-sm shadow-md shadow-purple-500/25 border-0 px-6"
+            >
+              Got it
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
