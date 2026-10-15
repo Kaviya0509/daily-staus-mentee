@@ -65,7 +65,7 @@ const STATUS_OPTIONS: {
     },
     {
       value: "Blocked",
-      label: "Blocked",
+      label: "Blocker",
       subtitle: "Facing blockers or issues",
       icon: AlertTriangle,
       activeColor: "bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25 ring-2 ring-rose-500/20",
