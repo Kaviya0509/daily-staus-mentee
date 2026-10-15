@@ -165,12 +165,12 @@ export default function DailyStatusFormPage() {
             <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
               Your daily status report has been recorded and submitted. Your mentor and administrative leads can now review your updates in the portal.
             </p>
-            <Button
+            {/* <Button
               onClick={handleReset}
               className="mt-4 bg-gradient-to-r from-[#7C3AED] to-[#9333EA] hover:from-[#6D28D9] hover:to-[#7C3AED] text-white font-bold rounded-xl text-sm shadow-md shadow-purple-500/25 border-0"
             >
               Submit Another Report
-            </Button>
+            </Button> */}
           </CardContent>
         </Card>
       </div>
