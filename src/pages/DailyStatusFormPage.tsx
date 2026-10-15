@@ -155,7 +155,7 @@ export default function DailyStatusFormPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#F8F7FC] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: "url('/form-bg.png')" }}>
         <Card className="max-w-md w-full rounded-2xl border border-slate-200 bg-white shadow-lg">
           <CardContent className="py-14 text-center space-y-4">
             <div className="h-16 w-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
@@ -178,9 +178,9 @@ export default function DailyStatusFormPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F7FC] text-slate-900 font-sans antialiased">
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed text-slate-900 font-sans antialiased" style={{ backgroundImage: "url('/form-bg.png')" }}>
       {/* Top Header Bar */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30">
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30">
         <div className="w-full px-4 sm:px-6 lg:px-10 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-[#7C3AED] via-[#8B5CF6] to-[#C084FC] flex items-center justify-center shadow-md shadow-purple-500/20 shrink-0">
@@ -202,6 +202,11 @@ export default function DailyStatusFormPage() {
               <p className="text-[11px] text-slate-400 font-medium">Daily Status & Standup</p>
             </div>
           </div>
+          <img
+            src="/gwc-logo.png"
+            alt="GWC DATA.AI"
+            className="h-10 sm:h-12 object-contain shrink-0"
+          />
         </div>
       </header>
 
