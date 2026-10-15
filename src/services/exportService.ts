@@ -74,129 +74,220 @@ export async function fetchReportsByDateRange(
   return snapshot.docs.map(docToRow);
 }
 
-const COLUMNS: { header: string; key: keyof ReportRow; width: number }[] = [
-  { header: "Report Date", key: "reportDate", width: 14 },
-  { header: "Mentee Name", key: "menteeName", width: 20 },
-  { header: "Mentee Email", key: "menteeEmail", width: 25 },
-  { header: "Current Task", key: "currentTask", width: 35 },
-  { header: "Status", key: "status", width: 15 },
-  { header: "Work Description", key: "shortDescription", width: 45 },
-  { header: "Manager / Lead", key: "managerLead", width: 18 },
-  { header: "Blocker / Dependency", key: "blockerDependency", width: 30 },
-  { header: "Idle Reason / Work Needed", key: "idleReasonWorkNeeded", width: 28 },
-  { header: "Expected Completion", key: "expectedCompletion", width: 18 },
-  { header: "Notes", key: "notes", width: 30 },
-  { header: "Submission Status", key: "submissionStatus", width: 16 },
-  { header: "Submitted At", key: "createdAt", width: 20 },
-  { header: "Report ID", key: "reportId", width: 30 },
+// --- Excel design matching target template ---
+
+const HEADERS = [
+  { label: "Date", key: "reportDate" as const, width: 14 },
+  { label: "Name", key: "menteeName" as const, width: 22 },
+  { label: "Current Task / Project", key: "currentTask" as const, width: 32 },
+  { label: "Status", key: "status" as const, width: 16 },
+  { label: "Short description", key: "shortDescription" as const, width: 36 },
+  { label: "Manager / Lead", key: "managerLead" as const, width: 20 },
+  { label: "Blocker / Dependency", key: "blockerDependency" as const, width: 26 },
+  { label: "Idle Reason / Work Needed", key: "idleReasonWorkNeeded" as const, width: 26 },
+  { label: "Expected Completion", key: "expectedCompletion" as const, width: 20 },
 ];
 
-const STATUS_FILLS: Record<string, { bg: string; font: string }> = {
-  "Not Started": { bg: "64748B", font: "FFFFFF" },
-  "In Progress": { bg: "0EA5E9", font: "FFFFFF" },
-  Blocked: { bg: "F43F5E", font: "FFFFFF" },
-  Completed: { bg: "10B981", font: "FFFFFF" },
-  "On Hold": { bg: "F59E0B", font: "FFFFFF" },
+const COL_COUNT = HEADERS.length;
+
+const TITLE_BG = "1B3A1B";
+const TITLE_FONT = "FFFFFF";
+const SUBTITLE_FONT = "1B3A1B";
+const HEADER_BG = "CC6600";
+const HEADER_FONT = "FFFFFF";
+const BORDER_COLOR = "999999";
+
+const thinBorder: Partial<ExcelJS.Borders> = {
+  top: { style: "thin", color: { argb: BORDER_COLOR } },
+  bottom: { style: "thin", color: { argb: BORDER_COLOR } },
+  left: { style: "thin", color: { argb: BORDER_COLOR } },
+  right: { style: "thin", color: { argb: BORDER_COLOR } },
 };
 
-const HEADER_FILL = "7C3AED";
-const HEADER_FONT_COLOR = "FFFFFF";
-const BORDER_COLOR = "D1D5DB";
-const ALT_ROW_FILL = "FAF5FF";
+function formatDateDisplay(dateStr: string): string {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-");
+  return `${m}/${d}/${y}`;
+}
+
+function getWeekNumber(dateStr: string): number {
+  const d = new Date(dateStr + "T00:00:00");
+  const dayOfMonth = d.getDate();
+  return Math.ceil(dayOfMonth / 7);
+}
+
+function getMonthName(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleString("en-US", { month: "long" });
+}
+
+function getWeekDateRange(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  const dayOfMonth = d.getDate();
+  const weekNum = Math.ceil(dayOfMonth / 7);
+  const weekStart = (weekNum - 1) * 7 + 1;
+  const year = d.getFullYear();
+  const month = d.getMonth();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const weekEnd = Math.min(weekStart + 6, lastDay);
+  const mm = String(month + 1).padStart(2, "0");
+  return `${mm}/${String(weekStart).padStart(2, "0")}/${year} - ${mm}/${String(weekEnd).padStart(2, "0")}/${year}`;
+}
+
+interface WeekGroup {
+  weekKey: string;
+  weekLabel: string;
+  dateGroups: { date: string; reports: ReportRow[] }[];
+}
+
+function groupByWeek(reports: ReportRow[]): WeekGroup[] {
+  const sorted = [...reports].sort((a, b) => a.reportDate.localeCompare(b.reportDate));
+
+  const weekMap = new Map<string, WeekGroup>();
+
+  for (const r of sorted) {
+    if (!r.reportDate) continue;
+    const month = getMonthName(r.reportDate);
+    const weekNum = getWeekNumber(r.reportDate);
+    const weekKey = `${r.reportDate.slice(0, 7)}-W${weekNum}`;
+    const dateRange = getWeekDateRange(r.reportDate);
+    const weekLabel = `${month} Week ${weekNum} - ${dateRange}`;
+
+    if (!weekMap.has(weekKey)) {
+      weekMap.set(weekKey, { weekKey, weekLabel, dateGroups: [] });
+    }
+    const group = weekMap.get(weekKey)!;
+
+    let dateGroup = group.dateGroups.find((dg) => dg.date === r.reportDate);
+    if (!dateGroup) {
+      dateGroup = { date: r.reportDate, reports: [] };
+      group.dateGroups.push(dateGroup);
+    }
+    dateGroup.reports.push(r);
+  }
+
+  for (const group of weekMap.values()) {
+    group.dateGroups.sort((a, b) => a.date.localeCompare(b.date));
+    for (const dg of group.dateGroups) {
+      dg.reports.sort((a, b) => a.menteeName.localeCompare(b.menteeName));
+    }
+  }
+
+  return Array.from(weekMap.values()).sort((a, b) => a.weekKey.localeCompare(b.weekKey));
+}
+
+function addTitleRow(sheet: ExcelJS.Worksheet) {
+  const row = sheet.addRow(["DAILY TEAM STATUS TRACKER"]);
+  sheet.mergeCells(row.number, 1, row.number, COL_COUNT);
+  const cell = row.getCell(1);
+  cell.font = {
+    name: "Calibri",
+    size: 16,
+    bold: true,
+    underline: true,
+    color: { argb: TITLE_FONT },
+  };
+  cell.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: TITLE_BG },
+  };
+  cell.alignment = { horizontal: "center", vertical: "middle" };
+  row.height = 32;
+  for (let c = 2; c <= COL_COUNT; c++) {
+    row.getCell(c).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: TITLE_BG },
+    };
+  }
+}
+
+function addWeekSubtitle(sheet: ExcelJS.Worksheet, label: string) {
+  const row = sheet.addRow([label]);
+  sheet.mergeCells(row.number, 1, row.number, COL_COUNT);
+  const cell = row.getCell(1);
+  cell.font = {
+    name: "Calibri",
+    size: 13,
+    bold: true,
+    color: { argb: SUBTITLE_FONT },
+  };
+  cell.alignment = { horizontal: "center", vertical: "middle" };
+  row.height = 26;
+}
+
+function addHeaderRow(sheet: ExcelJS.Worksheet) {
+  const row = sheet.addRow(HEADERS.map((h) => h.label));
+  row.height = 24;
+  row.eachCell((cell) => {
+    cell.font = {
+      name: "Calibri",
+      size: 11,
+      bold: true,
+      italic: true,
+      color: { argb: HEADER_FONT },
+    };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: HEADER_BG },
+    };
+    cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+    cell.border = {
+      top: { style: "thin", color: { argb: HEADER_BG } },
+      bottom: { style: "medium", color: { argb: "000000" } },
+      left: { style: "thin", color: { argb: HEADER_BG } },
+      right: { style: "thin", color: { argb: HEADER_BG } },
+    };
+  });
+}
+
+function addDataRow(sheet: ExcelJS.Worksheet, report: ReportRow) {
+  const values = HEADERS.map((h) => {
+    if (h.key === "reportDate") return formatDateDisplay(report.reportDate);
+    if (h.key === "expectedCompletion" && report.expectedCompletion) {
+      return formatDateDisplay(report.expectedCompletion);
+    }
+    return report[h.key];
+  });
+
+  const row = sheet.addRow(values);
+  row.height = 20;
+  row.eachCell((cell) => {
+    cell.font = { name: "Calibri", size: 10 };
+    cell.alignment = { vertical: "middle", wrapText: true };
+    cell.border = thinBorder;
+  });
+}
 
 export async function downloadExcel(reports: ReportRow[], filename?: string) {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "Mentee Tracker";
   workbook.created = new Date();
 
-  const sheet = workbook.addWorksheet("Mentee Reports", {
-    views: [{ state: "frozen", ySplit: 2 }],
+  const sheet = workbook.addWorksheet("Mentee Reports");
+
+  HEADERS.forEach((h, i) => {
+    sheet.getColumn(i + 1).width = h.width;
   });
 
-  // Title row
-  const titleRow = sheet.addRow(["Mentee Daily Status Reports"]);
-  sheet.mergeCells(1, 1, 1, COLUMNS.length);
-  const titleCell = titleRow.getCell(1);
-  titleCell.font = { name: "Calibri", size: 16, bold: true, color: { argb: HEADER_FILL } };
-  titleCell.alignment = { horizontal: "left", vertical: "middle" };
-  titleRow.height = 36;
+  addTitleRow(sheet);
 
-  // Header row
-  const headerRow = sheet.addRow(COLUMNS.map((c) => c.header));
-  headerRow.height = 28;
-  headerRow.eachCell((cell) => {
-    cell.font = { name: "Calibri", size: 11, bold: true, color: { argb: HEADER_FONT_COLOR } };
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: HEADER_FILL },
-    };
-    cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
-    cell.border = {
-      top: { style: "thin", color: { argb: HEADER_FILL } },
-      bottom: { style: "medium", color: { argb: HEADER_FILL } },
-      left: { style: "thin", color: { argb: HEADER_FILL } },
-      right: { style: "thin", color: { argb: HEADER_FILL } },
-    };
-  });
+  const weekGroups = groupByWeek(reports);
 
-  // Set column widths
-  COLUMNS.forEach((col, i) => {
-    sheet.getColumn(i + 1).width = col.width;
-  });
+  for (const week of weekGroups) {
+    addWeekSubtitle(sheet, week.weekLabel);
+    addHeaderRow(sheet);
 
-  // Data rows
-  const thinBorder: Partial<ExcelJS.Borders> = {
-    top: { style: "thin", color: { argb: BORDER_COLOR } },
-    bottom: { style: "thin", color: { argb: BORDER_COLOR } },
-    left: { style: "thin", color: { argb: BORDER_COLOR } },
-    right: { style: "thin", color: { argb: BORDER_COLOR } },
-  };
-
-  reports.forEach((report, idx) => {
-    const values = COLUMNS.map((col) => report[col.key]);
-    const row = sheet.addRow(values);
-    row.height = 22;
-
-    row.eachCell((cell, colIdx) => {
-      cell.font = { name: "Calibri", size: 10 };
-      cell.alignment = { vertical: "middle", wrapText: true };
-      cell.border = thinBorder;
-
-      if (idx % 2 === 1) {
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: ALT_ROW_FILL },
-        };
+    for (const dateGroup of week.dateGroups) {
+      for (const report of dateGroup.reports) {
+        addDataRow(sheet, report);
       }
+    }
 
-      const colDef = COLUMNS[colIdx - 1];
-      if (colDef?.key === "status") {
-        const statusStyle = STATUS_FILLS[String(cell.value)] ;
-        if (statusStyle) {
-          cell.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: statusStyle.bg },
-          };
-          cell.font = { name: "Calibri", size: 10, bold: true, color: { argb: statusStyle.font } };
-          cell.alignment = { horizontal: "center", vertical: "middle" };
-        }
-      }
-
-      // Center-align date columns
-      if (colDef?.key === "reportDate" || colDef?.key === "expectedCompletion") {
-        cell.alignment = { horizontal: "center", vertical: "middle" };
-      }
-    });
-  });
-
-  // Auto-filter on header row
-  sheet.autoFilter = {
-    from: { row: 2, column: 1 },
-    to: { row: 2, column: COLUMNS.length },
-  };
+    sheet.addRow([]);
+  }
 
   const name = filename || `mentee_reports_${new Date().toISOString().slice(0, 10)}.xlsx`;
   const buffer = await workbook.xlsx.writeBuffer();
