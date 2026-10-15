@@ -194,7 +194,7 @@ export default function DailyStatusFormPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-base font-bold text-slate-900 tracking-tight">Mentee</span>
+                <span className="text-base font-bold text-slate-900 tracking-tight">Daily Report</span>
                 <span className="text-[10px] font-bold text-[#7C3AED] bg-[#F3E8FF] border border-[#E9D4FF] px-2 py-0.5 rounded-full tracking-wider uppercase">
                   TRACKER
                 </span>
@@ -268,6 +268,21 @@ export default function DailyStatusFormPage() {
                 {errors.menteeName && (
                   <p className="text-xs text-rose-500">{errors.menteeName.message}</p>
                 )}
+              </div>
+
+              {/* Project Manager / Lead */}
+              <div className="space-y-1.5">
+                <Label htmlFor="managerLead" className="text-xs font-semibold text-slate-700">
+                  Project Manager / Lead{" "}
+                  <span className="text-slate-400 font-normal">(optional)</span>
+                </Label>
+                <Input
+                  id="managerLead"
+                  type="text"
+                  placeholder="e.g. Jane Smith"
+                  className="h-10 rounded-xl text-xs border-slate-200 focus:border-[#7C3AED] focus:ring-[#7C3AED]/20 font-medium"
+                  {...register("managerLead")}
+                />
               </div>
 
               {/* Current Task */}

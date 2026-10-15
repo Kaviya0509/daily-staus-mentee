@@ -263,10 +263,10 @@ function addDataRow(sheet: ExcelJS.Worksheet, report: ReportRow) {
 
 export async function downloadExcel(reports: ReportRow[], filename?: string) {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Mentee Tracker";
+  workbook.creator = "Daily Report Tracker";
   workbook.created = new Date();
 
-  const sheet = workbook.addWorksheet("Mentee Reports");
+  const sheet = workbook.addWorksheet("Daily Reports");
 
   HEADERS.forEach((h, i) => {
     sheet.getColumn(i + 1).width = h.width;
