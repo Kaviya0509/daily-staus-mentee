@@ -15,7 +15,6 @@ import {
   MinusCircle,
   PauseCircle,
   User,
-  Mail,
 } from "lucide-react";
 
 import { createReport } from "../services/reportService";
@@ -120,7 +119,13 @@ export default function DailyStatusFormPage() {
   const onSubmit = async (data: ReportFormData) => {
     setSubmitting(true);
     try {
-      await createReport(data);
+      const payload: ReportFormData = {
+        ...data,
+        reportDate: data.reportDate || format(new Date(), "yyyy-MM-dd"),
+        menteeEmail: data.menteeEmail || "",
+        managerLead: data.managerLead || "",
+      };
+      await createReport(payload);
       toast.success("Daily report submitted successfully!");
       setSubmitted(true);
     } catch (err: unknown) {
@@ -240,93 +245,24 @@ export default function DailyStatusFormPage() {
               </div>
             </CardHeader>
             <CardContent className="p-5 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Mentee Name */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="menteeName" className="text-xs font-semibold text-slate-700">
-                    Full Name <span className="text-rose-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                    <Input
-                      id="menteeName"
-                      type="text"
-                      placeholder="e.g. Alex Johnson"
-                      className="pl-9 h-10 rounded-xl text-xs border-slate-200 focus:border-[#7C3AED] focus:ring-[#7C3AED]/20"
-                      {...register("menteeName")}
-                    />
-                  </div>
-                  {errors.menteeName && (
-                    <p className="text-xs text-rose-500">{errors.menteeName.message}</p>
-                  )}
-                </div>
-
-                {/* Mentee Email */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="menteeEmail" className="text-xs font-semibold text-slate-700">
-                    Email Address <span className="text-rose-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                    <Input
-                      id="menteeEmail"
-                      type="email"
-                      placeholder="e.g. alex@company.com"
-                      className="pl-9 h-10 rounded-xl text-xs border-slate-200 focus:border-[#7C3AED] focus:ring-[#7C3AED]/20"
-                      {...register("menteeEmail")}
-                    />
-                  </div>
-                  {errors.menteeEmail && (
-                    <p className="text-xs text-rose-500">{errors.menteeEmail.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Report Date */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="reportDate" className="text-xs font-semibold text-slate-700">
-                      Report Date <span className="text-rose-500">*</span>
-                    </Label>
-                    <span className="inline-flex items-center gap-1 text-[11px] text-[#7C3AED] font-semibold bg-[#F3E8FF] px-2 py-0.5 rounded-md border border-[#E9D4FF]">
-                      <Calendar className="h-3 w-3" />
-                      Today Only
-                    </span>
-                  </div>
-                  <DateInput
-                    id="reportDate"
-                    readOnly
-                    min={format(new Date(), "yyyy-MM-dd")}
-                    max={format(new Date(), "yyyy-MM-dd")}
-                    className="h-10 rounded-xl text-xs bg-slate-100/70 border-slate-200 cursor-not-allowed text-slate-800 font-medium"
-                    {...register("reportDate")}
+              {/* Mentee Name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="menteeName" className="text-xs font-semibold text-slate-700">
+                  Full Name <span className="text-rose-500">*</span>
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                  <Input
+                    id="menteeName"
+                    type="text"
+                    placeholder="e.g. Alex Johnson"
+                    className="pl-9 h-10 rounded-xl text-xs border-slate-200 focus:border-[#7C3AED] focus:ring-[#7C3AED]/20 font-medium"
+                    {...register("menteeName")}
                   />
-                  <p className="text-[11px] text-slate-400">Reports must be submitted for the current day only.</p>
-                  {errors.reportDate && (
-                    <p className="text-xs text-rose-500">{errors.reportDate.message}</p>
-                  )}
                 </div>
-
-                {/* Manager / Lead */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="managerLead" className="text-xs font-semibold text-slate-700">
-                    Manager / Lead <span className="text-rose-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                    <Input
-                      id="managerLead"
-                      placeholder="e.g. John Doe (Tech Lead)"
-                      maxLength={100}
-                      className="h-10 rounded-xl text-xs border-slate-200 focus:border-[#7C3AED] pl-9"
-                      {...register("managerLead")}
-                    />
-                  </div>
-                  {errors.managerLead && (
-                    <p className="text-xs text-rose-500">{errors.managerLead.message}</p>
-                  )}
-                </div>
+                {errors.menteeName && (
+                  <p className="text-xs text-rose-500">{errors.menteeName.message}</p>
+                )}
               </div>
 
               {/* Current Task */}
