@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import {
   Loader2,
   Calendar,
@@ -15,6 +16,7 @@ import {
   MinusCircle,
   PauseCircle,
   User,
+  FileSpreadsheet,
 } from "lucide-react";
 
 import { createReport } from "../services/reportService";
@@ -202,6 +204,16 @@ export default function DailyStatusFormPage() {
               <p className="text-[11px] text-slate-400 font-medium">Daily Status & Standup</p>
             </div>
           </div>
+          <Link to="/export">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-9 px-4 rounded-xl text-xs font-semibold border-slate-200 text-slate-600 hover:bg-slate-50"
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
+              Export Excel
+            </Button>
+          </Link>
         </div>
       </header>
 
