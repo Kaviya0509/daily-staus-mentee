@@ -10,7 +10,7 @@ export const reportSchema = z.object({
     required_error: "Status is required",
   }),
   shortDescription: z.string().min(1, "Description is required").max(2000),
-  managerLead: z.string().optional().default(""),
+  managerLead: z.string().min(2, "Project Manager / Lead is required"),
   blockerDependency: z.string().max(2000).default(""),
   idleReasonWorkNeeded: z.string().max(2000).default(""),
   expectedCompletion: z.string().default(""),

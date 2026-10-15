@@ -290,8 +290,7 @@ export default function DailyStatusFormPage() {
               {/* Project Manager / Lead */}
               <div className="space-y-1.5">
                 <Label htmlFor="managerLead" className="text-xs font-semibold text-slate-700">
-                  Project Manager / Lead{" "}
-                  <span className="text-slate-400 font-normal">(optional)</span>
+                  Project Manager / Lead <span className="text-rose-500">*</span>
                 </Label>
                 <Input
                   id="managerLead"
@@ -300,6 +299,9 @@ export default function DailyStatusFormPage() {
                   className="h-10 rounded-xl text-xs border-slate-200 focus:border-[#7C3AED] focus:ring-[#7C3AED]/20 font-medium"
                   {...register("managerLead")}
                 />
+                {errors.managerLead && (
+                  <p className="text-xs text-rose-500">{errors.managerLead.message}</p>
+                )}
               </div>
 
               {/* Current Task */}
